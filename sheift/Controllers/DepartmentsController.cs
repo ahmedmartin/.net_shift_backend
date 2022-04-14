@@ -25,29 +25,22 @@ namespace sheift.Controllers
         // GET: api/Departments
         [HttpGet]
         //[HttpGet("{admin_id}")]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentsDataWithmanger>>> GetDepartments()
         {
             //if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
 
-            return await _context.Departments.ToListAsync();
+            return  _context.DepartmentsDataWithmangers;
         }
 
         // GET: api/Departments/5
-        [HttpGet("{id}")]
+        [HttpGet("manger_departments/{manger_id}")]
         //[HttpGet("{id},{admin_id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        public async Task<ActionResult<IEnumerable<DepartmentsDataWithmanger>>> GetDepartment(int id)
         {
 
-            //if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
+            var shift_details = _context.DepartmentsDataWithmangers.Where(s => s.MangerId == id).OrderBy(d => d.DepName);
 
-            var department = await _context.Departments.FindAsync(id);
-
-            if (department == null)
-            {
-                return NotFound("Department Not Found");
-            }
-
-            return department;
+            return Ok(shift_details);
         }
 
         // PUT: api/Departments/5
@@ -57,17 +50,13 @@ namespace sheift.Controllers
         [HttpPut("{admin_id}")]
         public async Task<IActionResult> PutDepartment(int admin_id, Department department)
         {
-            //if (id != department.DepId)
-            //{
-            //    return BadRequest();
-            //}
+            
 
             if (!await check_user_role_foundAsync(admin_id))
             { return NotFound("Not Admin"); }
 
-            if (!await check_user_manger_foundAsync(department.MangerId, department.DepId, true))
-            { return NotFound("Not manger or Not Include This Department"); }
-            //if (!await check_user_department_foundAsync(department.MangerId, department.DepId)) return NotFound("Admin Not Include This Department");
+            //if (!await check_user_manger_foundAsync(department., department.DepId, true))
+            //{ return NotFound("Not manger or Not Include This Department"); }
 
             _context.Entry(department).State = EntityState.Modified;
 
@@ -94,17 +83,27 @@ namespace sheift.Controllers
         // POST: api/Departments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = "admin")]
-        [HttpPost("{admin_id}")]
+        [HttpPost("add_department/{admin_id}")]
         public async Task<ActionResult<Department>> PostDepartment(int admin_id, Department department)
         {
 
             if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
-            if (!await check_user_manger_foundAsync(department.MangerId,department.DepId,false)) return NotFound("Not manger");
-            //if (!await check_user_department_foundAsync(department.MangerId,department.DepId)) return NotFound("Admin Not Include This Department");
-
-
             _context.Departments.Add(department);
             await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDepartment", new { id = department.DepId }, department);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPost("add_department_manger/{admin_id}")]
+        public async Task<ActionResult<DepartmentManger>> PostDepartment_manger(int admin_id, DepartmentManger department)
+        {
+
+            if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
+            //if (!await check_user_manger_foundAsync(department.MangerId, department.DepId, false)) return NotFound("Not manger");
+            _context.DepartmentMangers.Add(department);
+            await _context.SaveChangesAsync();
+
 
             return CreatedAtAction("GetDepartment", new { id = department.DepId }, department);
         }
@@ -152,7 +151,7 @@ namespace sheift.Controllers
             return null;
         }
 
-        private async Task<bool> check_user_manger_foundAsync(int id, int dep_id,bool update)
+        private async Task<bool> check_user_manger_foundAsync(int id, int dep_id, bool update)
         {
             var user = await _context.Users.FindAsync(id);
 

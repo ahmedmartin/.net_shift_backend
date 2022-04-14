@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using sheift.Models;
 
 namespace sheift.Controllers
@@ -28,6 +29,92 @@ namespace sheift.Controllers
         {
             return await _context.Shiefts.ToListAsync();
         }
+
+
+        //GET: api/Shiefts
+        [HttpGet("shift_details_inMonth")]
+        public async Task<ActionResult<IEnumerable<ShiftDetail>>> GetShiefts(String month_year)
+        {
+            
+            //  join between 2 tables  
+            //var shift_shiftType_list = await _context.Shiefts
+            //     .Join(
+            //         _context.ShiftTypes,
+            //         shift => shift.ShiftTypeId,
+            //         ShiftType => ShiftType.ShiftTypeId,
+            //         (shift, ShiftType) => new
+            //         {
+            //             Shift_id = shift.ShiftId,
+            //         }
+            //     ).ToListAsync();
+
+            //join between multible table and where condition by linq query
+            //var shift_shiftType_list = (from s in _context.Shiefts
+            //                            join st in _context.ShiftTypes on s.ShiftTypeId equals st.ShiftTypeId
+            //                            join ua in _context.Users on s.AdminId equals ua.UserId
+            //                            join u in _context.Users on s.UserId equals u.UserId
+            //                            where s.Date.Substring(3, 7) == month_year
+            //                            select new ShiftDetail()
+            //                            {
+            //                                ShiftId = s.ShiftId,
+            //                                Date = s.Date,
+            //                                UserId = s.UserId,
+            //                                UserName = u.UserName,
+            //                                AdminId = s.AdminId,
+            //                                AdminName = ua.UserName,
+            //                                Time = s.Time,
+            //                                ShiftName = st.ShiftName
+            //                            }).ToList();
+
+            
+            // use view databse 
+            var shift_details = _context.ShiftDetails.Where(s => s.Date.Substring(3, 7) == month_year).OrderBy(d=>d.DepName);
+
+            return Ok(shift_details);
+        }
+
+
+        [HttpGet("shift_details_inDay")]
+        public async Task<ActionResult<IEnumerable<ShiftDetail>>> GetShiefts_inDay(String day_month_year)
+        {
+
+            //  join between 2 tables  
+            //var shift_shiftType_list = await _context.Shiefts
+            //     .Join(
+            //         _context.ShiftTypes,
+            //         shift => shift.ShiftTypeId,
+            //         ShiftType => ShiftType.ShiftTypeId,
+            //         (shift, ShiftType) => new
+            //         {
+            //             Shift_id = shift.ShiftId,
+            //         }
+            //     ).ToListAsync();
+
+            //join between multible table and where condition by linq query
+            //var shift_shiftType_list = (from s in _context.Shiefts
+            //                            join st in _context.ShiftTypes on s.ShiftTypeId equals st.ShiftTypeId
+            //                            join ua in _context.Users on s.AdminId equals ua.UserId
+            //                            join u in _context.Users on s.UserId equals u.UserId
+            //                            where s.Date.Substring(3, 7) == month_year
+            //                            select new ShiftDetail()
+            //                            {
+            //                                ShiftId = s.ShiftId,
+            //                                Date = s.Date,
+            //                                UserId = s.UserId,
+            //                                UserName = u.UserName,
+            //                                AdminId = s.AdminId,
+            //                                AdminName = ua.UserName,
+            //                                Time = s.Time,
+            //                                ShiftName = st.ShiftName
+            //                            }).ToList();
+
+
+            // use view databse 
+            var shift_details = _context.ShiftDetails.Where(s => s.Date == day_month_year).OrderBy(d => d.DepName);
+
+            return Ok(shift_details);
+        }
+
 
         // GET: api/Shiefts/5
         [HttpGet("{id}")]
@@ -82,11 +169,11 @@ namespace sheift.Controllers
             //    return BadRequest();
             //}
 
-            if (!await user_id_foundAsync(shieft)) return NotFound("User not Found");
+            if (await user_id_foundAsync(shieft.UserId)==null) return NotFound("User not Found");
 
             if (!await check_user_role_foundAsync(shieft.AdminId)) return NotFound("Not Admin");
 
-            if (!await shieft_type_id_foundAsync(shieft)) return NotFound("Shift type not found");
+            if (await shieft_type_foundAsync(shieft)==null) return NotFound("Shift type not found");
 
             _context.Entry(shieft).State = EntityState.Modified;
 
@@ -115,11 +202,11 @@ namespace sheift.Controllers
         public async Task<ActionResult<Shieft>> PostShieft(Shieft shieft)
         {
 
-            if (!await user_id_foundAsync(shieft)) return NotFound("User not Found");
+            if (await user_id_foundAsync(shieft.UserId)==null) return NotFound("User not Found");
 
             if (!await check_user_role_foundAsync(shieft.AdminId)) return NotFound("Not Department Admin");
 
-            if (!await shieft_type_id_foundAsync(shieft)) return NotFound("Shift type not found");
+            if (await shieft_type_foundAsync(shieft)==null) return NotFound("Shift type not found");
 
             _context.Shiefts.Add(shieft);
             await _context.SaveChangesAsync();
@@ -149,10 +236,10 @@ namespace sheift.Controllers
             return Ok("Shift Deleted");
         }
 
-        private async Task<bool> user_id_foundAsync(Shieft shieft)
+        private async Task<User> user_id_foundAsync(int id)
         {
-            var user = await _context.Users.FindAsync(shieft.UserId);
-            return user != null;
+            var user = await _context.Users.FindAsync(id);
+            return user ;
         }
 
         private async Task<bool> check_user_role_foundAsync(int id)
@@ -167,7 +254,8 @@ namespace sheift.Controllers
                     if (role == "admin") return true;
                     if (role == "manger")
                     {
-                        var department = await _context.Departments.FindAsync(user.DeptId);
+                        var department = _context.DepartmentMangers.FirstOrDefault(c=>c.DepId==user.DeptId);
+
                         if (department != null)
                         {
                             if (department.MangerId == user.UserId) return true;
@@ -190,10 +278,13 @@ namespace sheift.Controllers
             return null;
         }
 
-        private async Task<bool> shieft_type_id_foundAsync(Shieft shieft)
+        private async Task<String> shieft_type_foundAsync(Shieft shieft)
         {
             var shift_type = await _context.ShiftTypes.FindAsync(shieft.ShiftTypeId);
-            return shift_type != null;
+            if (shift_type != null) {
+                return shift_type.ShiftName;
+            }
+            return  null;
         }
 
 

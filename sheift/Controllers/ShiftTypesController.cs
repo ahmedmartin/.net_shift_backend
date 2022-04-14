@@ -24,18 +24,19 @@ namespace sheift.Controllers
         }
 
         // GET: api/ShiftTypes
-        [HttpGet("{admin_id}")]
-        public async Task<ActionResult<IEnumerable<ShiftType>>> GetShiftTypes(int admin_id)
+        [AllowAnonymous]
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<ShiftType>>> GetShiftTypes()
         {
-            if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
+           // if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
             return await _context.ShiftTypes.ToListAsync();
         }
 
         // GET: api/ShiftTypes/5
-        [HttpGet("{id},{admin_id}")]
-        public async Task<ActionResult<ShiftType>> GetShiftType(int admin_id, int id)
+        [AllowAnonymous]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ShiftType>> GetShiftType( int id)
         {
-            if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
 
             var shiftType = await _context.ShiftTypes.FindAsync(id);
 

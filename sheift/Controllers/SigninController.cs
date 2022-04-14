@@ -38,12 +38,14 @@ namespace sheift.Controllers
 
 
                 var user = await CheckUserEmail(_userData.Email);
-                string role_name = await get_role_foundAsync(user);
+                
 
                 if (user != null)
                 {
                     //String dp_pass = BC.HashPassword(user.Password);
-
+                    
+                    string role_name = await get_role_foundAsync(user);
+                    String dep_name = await GetDepartment(user);
                     if (BC.Verify(_userData.Password, user.Password))
                     {
                         var claims = new[]
@@ -64,7 +66,12 @@ namespace sheift.Controllers
                         var dictionary = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
                         dictionary.Add("token", new JwtSecurityTokenHandler().WriteToken(token));
                         dictionary.Remove("Password");
+                        dictionary.Remove("RoleId");
+                        dictionary.Add("Role", role_name);
+                        dictionary.Add("Department", dep_name);
                         return Ok(dictionary);
+
+
                     }
                     else return BadRequest("Invalid email and password");
                 }else return NotFound("Invalid email and password");
@@ -72,6 +79,9 @@ namespace sheift.Controllers
             
 
         }
+
+
+        
 
 
         private async Task<User> CheckUserEmail(string email)
@@ -86,6 +96,21 @@ namespace sheift.Controllers
             {
                 return role.RoleName;
             }
+            return null;
+        }
+
+        private async Task<String> GetDepartment(User user)
+        {
+
+            //if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
+
+            var department = await _context.Departments.FindAsync(user.DeptId);
+
+            if (department != null)
+            {
+                return department.DepName;
+            }
+
             return null;
         }
 

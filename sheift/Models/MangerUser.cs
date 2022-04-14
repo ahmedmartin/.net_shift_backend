@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace sheift.Models
 {
-    public partial class User
+    public partial class MangerUser
     {
+        public int MangerId { get; set; }
         public string UserName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public int DeptId { get; set; }
