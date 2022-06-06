@@ -32,13 +32,22 @@ namespace sheift.Controllers
             return  _context.DepartmentsDataWithmangers;
         }
 
+        [HttpGet("department_manger")]
+        //[HttpGet("{admin_id}")]
+        public async Task<ActionResult<IEnumerable<DepartmentManger>>> GetDepartments_manger()
+        {
+            //if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
+
+            return await _context.DepartmentMangers.ToListAsync();
+        }
+
         // GET: api/Departments/5
         [HttpGet("manger_departments/{manger_id}")]
         //[HttpGet("{id},{admin_id}")]
-        public async Task<ActionResult<IEnumerable<DepartmentsDataWithmanger>>> GetDepartment(int id)
+        public async Task<ActionResult<IEnumerable<DepartmentsDataWithmanger>>> GetDepartment(int manger_id)
         {
 
-            var shift_details = _context.DepartmentsDataWithmangers.Where(s => s.MangerId == id).OrderBy(d => d.DepName);
+            var shift_details = await _context.DepartmentsDataWithmangers.Where(s => s.MangerId == manger_id).OrderBy(d => d.DepName).ToListAsync();
 
             return Ok(shift_details);
         }
@@ -51,6 +60,43 @@ namespace sheift.Controllers
         public async Task<IActionResult> PutDepartment(int admin_id, Department department)
         {
             
+
+            if (!await check_user_role_foundAsync(admin_id))
+            { return NotFound("Not Admin"); }
+
+            //if (!await check_user_manger_foundAsync(department., department.DepId, true))
+            //{ return NotFound("Not manger or Not Include This Department"); }
+
+            _context.Entry(department).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(department);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                //if (!DepartmentExists(id))
+                //{
+                return NotFound("Department Not Found");
+                //}
+                //else
+                //{
+                //    throw;
+                //}
+            }
+
+            return Ok(department);
+        }
+
+        // PUT: api/Departments/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
+        [HttpPut("edita_department_manger/{admin_id}")]
+        public async Task<IActionResult> PutDepartment_manger(int admin_id, DepartmentManger department)
+        {
+
 
             if (!await check_user_role_foundAsync(admin_id))
             { return NotFound("Not Admin"); }

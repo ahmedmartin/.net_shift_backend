@@ -101,6 +101,7 @@ namespace sheift.Controllers
         }
 
 
+
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]
@@ -191,7 +192,7 @@ namespace sheift.Controllers
             {
                 return NotFound("User Not Found");
             }
-            if (!await check_user_role_foundAsync(id)) return NotFound("Not Admin");
+            //if (!await check_user_role_foundAsync(id)) return NotFound("Not Admin");
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 

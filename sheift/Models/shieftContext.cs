@@ -7,7 +7,7 @@ namespace sheift.Models
 {
     public partial class shieftContext : DbContext
     {
-        
+       
 
         public shieftContext(DbContextOptions<shieftContext> options)
             : base(options)
@@ -41,7 +41,6 @@ namespace sheift.Models
 
                 entity.Property(e => e.DepName)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("dep_name");
             });
 
@@ -125,7 +124,6 @@ namespace sheift.Models
 
                 entity.Property(e => e.RoleName)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("role_name");
             });
 
@@ -195,7 +193,6 @@ namespace sheift.Models
 
                 entity.Property(e => e.ShiftName)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("shift_name");
             });
 
@@ -223,7 +220,6 @@ namespace sheift.Models
                     .HasColumnName("entry_telephone");
 
                 entity.Property(e => e.Password)
-                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("password");
 
@@ -231,12 +227,10 @@ namespace sheift.Models
 
                 entity.Property(e => e.Telephone)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("telephone");
 
                 entity.Property(e => e.UserName)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("user_name");
             });
 

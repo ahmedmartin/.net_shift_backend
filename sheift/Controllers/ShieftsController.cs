@@ -78,41 +78,25 @@ namespace sheift.Controllers
         public async Task<ActionResult<IEnumerable<ShiftDetail>>> GetShiefts_inDay(String day_month_year)
         {
 
-            //  join between 2 tables  
-            //var shift_shiftType_list = await _context.Shiefts
-            //     .Join(
-            //         _context.ShiftTypes,
-            //         shift => shift.ShiftTypeId,
-            //         ShiftType => ShiftType.ShiftTypeId,
-            //         (shift, ShiftType) => new
-            //         {
-            //             Shift_id = shift.ShiftId,
-            //         }
-            //     ).ToListAsync();
-
-            //join between multible table and where condition by linq query
-            //var shift_shiftType_list = (from s in _context.Shiefts
-            //                            join st in _context.ShiftTypes on s.ShiftTypeId equals st.ShiftTypeId
-            //                            join ua in _context.Users on s.AdminId equals ua.UserId
-            //                            join u in _context.Users on s.UserId equals u.UserId
-            //                            where s.Date.Substring(3, 7) == month_year
-            //                            select new ShiftDetail()
-            //                            {
-            //                                ShiftId = s.ShiftId,
-            //                                Date = s.Date,
-            //                                UserId = s.UserId,
-            //                                UserName = u.UserName,
-            //                                AdminId = s.AdminId,
-            //                                AdminName = ua.UserName,
-            //                                Time = s.Time,
-            //                                ShiftName = st.ShiftName
-            //                            }).ToList();
-
-
             // use view databse 
             var shift_details = _context.ShiftDetails.Where(s => s.Date == day_month_year).OrderBy(d => d.DepName);
 
             return Ok(shift_details);
+        }
+
+        [HttpGet("users_shift_count__bymonth")]
+        public async Task<ActionResult<IEnumerable<ShiftDetail>>> users_shift_count__bymonth(String month_year,int manger_id)
+        {
+
+            
+
+            var countPerGroup = await _context.ShiftDetails
+                    .Where(s => s.Date.Substring(3, 7) == month_year&&s.AdminId==manger_id)
+                    .GroupBy(t => t.UserName)
+                    .Select(shiftGroup => new { user_name = shiftGroup.Key, Count = shiftGroup.Count() })
+                    .ToListAsync();
+
+            return Ok(countPerGroup);
         }
 
 

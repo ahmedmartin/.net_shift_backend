@@ -10,6 +10,7 @@ using System.Security.Claims;
 
 using BC = BCrypt.Net.BCrypt;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors;
 
 namespace sheift.Controllers
 {
@@ -28,7 +29,7 @@ namespace sheift.Controllers
 
 
 
-
+        [EnableCors("AllowOrigin")]
         [HttpPost]
         public async Task<IActionResult> Post(Sign_in _userData)
         {
