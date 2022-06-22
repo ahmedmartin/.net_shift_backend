@@ -235,19 +235,8 @@ namespace sheift.Controllers
                 var role = await get_role_foundAsync(user);
                 if (role != null)
                 {
-                    if (role == "admin") return true;
-                    if (role == "manger")
-                    {
-                        var department = _context.DepartmentMangers.FirstOrDefault(c=>c.DepId==user.DeptId);
-
-                        if (department != null)
-                        {
-                            if (department.MangerId == user.UserId) return true;
-                        }
-                    }
+                    if (role == "admin"|| role == "manger") return true;
                 }
-
-
             }
             return false;
         }
