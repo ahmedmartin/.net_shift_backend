@@ -14,5 +14,6 @@ namespace sheift.Models
         public int UserId { get; set; }
         public int RoleId { get; set; }
         public string Password { get; set; } = null!;
+        public string? LoginDate { get; set; }
     }
 }

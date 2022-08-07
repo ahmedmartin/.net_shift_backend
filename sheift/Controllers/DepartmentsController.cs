@@ -32,15 +32,19 @@ namespace sheift.Controllers
             return  _context.DepartmentsDataWithmangers;
         }
 
-        [HttpGet("department_manger")]
+
+        // get mangers for every department
+        [HttpGet("department_mangers")]
         //[HttpGet("{admin_id}")]
-        public async Task<ActionResult<IEnumerable<DepartmentManger>>> GetDepartments_manger()
+        public async Task<ActionResult<IEnumerable<DepartmentManger>>> GetDepartments_mangers()
         {
             //if (!await check_user_role_foundAsync(admin_id)) return NotFound("Not Admin");
 
             return await _context.DepartmentMangers.ToListAsync();
         }
 
+
+        // get departments for specific manger 
         // GET: api/Departments/5
         [HttpGet("manger_departments/{manger_id}")]
         //[HttpGet("{id},{admin_id}")]

@@ -135,14 +135,7 @@ namespace sheift.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                //if (!UserExists(id))
-                //{
                 return NotFound("User Not Found");
-                //}
-                //else
-                //{
-                //    throw;
-                //}
             }
 
             var json = JsonConvert.SerializeObject(user);

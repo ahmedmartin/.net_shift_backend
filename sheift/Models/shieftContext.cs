@@ -7,7 +7,7 @@ namespace sheift.Models
 {
     public partial class shieftContext : DbContext
     {
-       
+      
 
         public shieftContext(DbContextOptions<shieftContext> options)
             : base(options)
@@ -26,7 +26,7 @@ namespace sheift.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
+        
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -218,6 +218,11 @@ namespace sheift.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("entry_telephone");
+
+                entity.Property(e => e.LoginDate)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("login_date");
 
                 entity.Property(e => e.Password)
                     .IsUnicode(false)

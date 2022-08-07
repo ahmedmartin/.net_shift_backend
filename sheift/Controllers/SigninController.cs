@@ -34,12 +34,12 @@ namespace sheift.Controllers
         public async Task<IActionResult> Post(Sign_in _userData)
         {
 
+
             if (_userData != null && _userData.Email != null && _userData.Password != null)
             {
 
 
                 var user = await CheckUserEmail(_userData.Email);
-                
 
                 if (user != null)
                 {
@@ -47,6 +47,7 @@ namespace sheift.Controllers
                     
                     string role_name = await get_role_foundAsync(user);
                     String dep_name = await GetDepartment(user);
+
                     if (BC.Verify(_userData.Password, user.Password))
                     {
                         var claims = new[]
@@ -70,12 +71,27 @@ namespace sheift.Controllers
                         dictionary.Remove("RoleId");
                         dictionary.Add("Role", role_name);
                         dictionary.Add("Department", dep_name);
+
+                        //------add last login date for user --------------
+                        user.LoginDate = DateTime.Now.ToString("yyyy-MM-dd");
+                        _context.Entry(user).State = EntityState.Modified;
+
+                        try
+                        {
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            return NotFound("User Not Found");
+                        }
+
+
                         return Ok(dictionary);
 
 
                     }
-                    else return BadRequest("Invalid email and password");
-                }else return NotFound("Invalid email and password");
+                    else return BadRequest(BC.Verify(_userData.Password, user.Password));//Invalid email and password check pass");
+                }else return NotFound("Invalid email and password check user");
             }else return BadRequest("Fill all Parameters");
             
 
