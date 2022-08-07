@@ -90,8 +90,8 @@ namespace sheift.Controllers
 
 
                     }
-                    else return BadRequest(BC.Verify(_userData.Password, user.Password));//Invalid email and password check pass");
-                }else return NotFound("Invalid email and password check user");
+                    else return BadRequest("Invalid email and password");
+                }else return NotFound("Invalid email and password");
             }else return BadRequest("Fill all Parameters");
             
 
